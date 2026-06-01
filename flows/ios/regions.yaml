@@ -1,0 +1,48 @@
+appId: com.apple.Preferences
+env:
+  PERCY_ORIENTATION: "portrait"
+  PERCY_DEVICE_NAME: "iPhone 16"
+  PERCY_OS_VERSION: "18.5"
+---
+# regions.yaml (iOS) — demonstrates element regions against Settings.app.
+# Exercises the cli#2248 iOS port cascade: the relay probes 127.0.0.1:7001
+# (deterministic on Maestro <= 2.4.0), falls back to lsof discovery on
+# newer Maestro, then resolves the element via runIosHttpDump.
+#
+# iOS-specific limitation: only the `id` selector key is supported for
+# element regions. Android's `resource-id`, `text`, `content-desc`, `class`
+# are NOT available because Maestro's iOS TreeNode doesn't expose them.
+
+- launchApp:
+    appId: com.apple.Preferences
+    clearState: false
+
+- waitForAnimationToEnd:
+    timeout: 8000
+- assertVisible: "General"
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Snapshot 1 — Settings root. No manual region; relies on SDK's default
+# status/nav-bar mask (introduced in v1.0.0-Beta.0 / PR #6).
+- runFlow:
+    file: percy/flows/percy-screenshot.yaml
+    env:
+      SCREENSHOT_NAME: "iOS_SettingsRoot"
+
+# Navigate into General; the element region in snapshot 2 targets a
+# stable accessibility id on this screen.
+- tapOn: "General"
+- waitForAnimationToEnd:
+    timeout: 8000
+- assertVisible: "About"
+- waitForAnimationToEnd:
+    timeout: 2000
+
+# Snapshot 2 — element region masking the About cell.
+# Forces the iOS port cascade to fire (relay needs maestro hierarchy).
+- runFlow:
+    file: percy/flows/percy-screenshot.yaml
+    env:
+      SCREENSHOT_NAME: "iOS_SettingsGeneral"
+      PERCY_REGIONS: '[{"element":{"id":"About"},"algorithm":"ignore"}]'

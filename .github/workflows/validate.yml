@@ -1,0 +1,42 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Minimal permissions. This workflow only reads code and runs scripts; it
+# does not push commits, create comments, or interact with the GitHub API.
+# `pull_request` (not `pull_request_target`) means fork PRs run in the
+# untrusted-code context — no secrets exposed.
+permissions:
+  contents: read
+
+jobs:
+  validate-flows:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Set up Python (for YAML parser in validate-flows.js)
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Python YAML
+        run: pip install pyyaml
+
+      - name: npm install
+        run: npm install
+
+      - name: Sync SDK from @percy/maestro-app
+        run: npm run sync-sdk
+
+      - name: Validate flow YAMLs
+        run: npm run validate

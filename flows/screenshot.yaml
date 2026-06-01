@@ -1,0 +1,42 @@
+appId: com.sample.browserstack.samplecalculator
+env:
+  PERCY_ORIENTATION: "portrait"
+  # Self-hosted: device metadata MUST be set explicitly. Replace these
+  # with your device's actual values before running.
+  # PERCY_DEVICE_NAME, PERCY_OS_VERSION, PERCY_SCREEN_WIDTH, PERCY_SCREEN_HEIGHT
+  # default to PNG-derived values when omitted, but supplying them makes
+  # the Percy build's tag info correct (matters for cross-device grouping).
+  PERCY_DEVICE_NAME: "Pixel 7"
+  PERCY_OS_VERSION: "13"
+---
+# screenshot.yaml — basic 2-snapshot smoke test against the Sample Calculator
+# app. No regions; relies on the SDK's default status/nav-bar mask
+# (introduced in @percy/maestro-app v1.0.0-Beta.0 / PR #6).
+#
+# Self-hosted runtime contract:
+# - PERCY_SERVER: auto-injected by `percy app:exec` on @percy/cli >= 1.32.0-beta.3
+#   (PR #2254). On older CLIs, pass `-e PERCY_SERVER=http://localhost:5338` to
+#   `maestro test`. See README's "CLI compatibility" section.
+# - PERCY_SESSION_ID: absent self-hosted. The CLI relay accepts uploads without it.
+# - PERCY_MAESTRO_SCREENSHOT_DIR: customer exports this in their shell; the SDK
+#   writes screenshot PNGs there, and the CLI relay resolves the absolute path.
+
+- launchApp
+
+# Snapshot 1 — launch screen.
+- runFlow:
+    file: percy/flows/percy-screenshot.yaml
+    env:
+      SCREENSHOT_NAME: "Calculator_launch"
+
+# Snapshot 2 — after entering 12 + 34 =
+- tapOn: "1"
+- tapOn: "2"
+- tapOn: "+"
+- tapOn: "3"
+- tapOn: "4"
+- tapOn: "="
+- runFlow:
+    file: percy/flows/percy-screenshot.yaml
+    env:
+      SCREENSHOT_NAME: "Calculator_result"

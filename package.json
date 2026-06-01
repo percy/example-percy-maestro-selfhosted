@@ -1,0 +1,21 @@
+{
+  "name": "example-percy-maestro-selfhosted",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Example app demonstrating Percy visual testing with Maestro on self-hosted (non-BrowserStack) devices",
+  "scripts": {
+    "sync-sdk": "bash scripts/sync-sdk.sh",
+    "validate": "node scripts/validate-flows.js"
+  },
+  "devDependencies": {
+    "@percy/cli": ">=1.32.0-beta.2"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/percy/example-percy-maestro-selfhosted"
+  }
+}

@@ -1,0 +1,27 @@
+appId: com.apple.Preferences
+env:
+  PERCY_ORIENTATION: "portrait"
+  PERCY_DEVICE_NAME: "iPhone 16"
+  PERCY_OS_VERSION: "18.5"
+---
+# launch.yaml — 30-second iOS smoke test against a booted simulator.
+# Uses stock Settings (com.apple.Preferences) so no .ipa is required.
+#
+# Prerequisites:
+#   - Xcode installed (full Xcode, not just Command Line Tools).
+#   - A simulator booted: `xcrun simctl boot <udid>` then `open -a Simulator`.
+#   - `JAVA_TOOL_OPTIONS=-Djava.net.preferIPv4Stack=true` exported (Maestro's
+#     JVM hits the same dadb-over-IPv6 loopback issue on iOS hosts).
+
+- launchApp:
+    appId: com.apple.Preferences
+    clearState: false
+
+- waitForAnimationToEnd:
+    timeout: 5000
+- assertVisible: "General"
+
+- runFlow:
+    file: percy/flows/percy-screenshot.yaml
+    env:
+      SCREENSHOT_NAME: "iOS_SettingsLaunch"

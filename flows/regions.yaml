@@ -1,0 +1,39 @@
+appId: com.sample.browserstack.samplecalculator
+env:
+  PERCY_ORIENTATION: "portrait"
+  # Replace with your device's actual values before running.
+  PERCY_DEVICE_NAME: "Pixel 7"
+  PERCY_OS_VERSION: "13"
+---
+# regions.yaml — demonstrates both region types:
+#   - Snapshot 1: coordinate-based region (native PNG pixels — see README).
+#   - Snapshot 2: element-based region by resource-id (Android-specific selector).
+#
+# The element region triggers the CLI relay's `maestroDump` on Android, which
+# falls back through gRPC → maestro-cli per the cli#2248 resolver cascade.
+# Coordinate regions skip the cascade and apply directly.
+
+- launchApp
+
+# Snapshot 1 — coordinate region masks an arbitrary top strip.
+# IMPORTANT: coordinates are native PNG pixels, NOT logical points.
+# Pixel 7 / Pixel 10 = 1080 wide. Adjust `right` for your device.
+- runFlow:
+    file: percy/flows/percy-screenshot.yaml
+    env:
+      SCREENSHOT_NAME: "Regions_coordinate"
+      PERCY_REGIONS: '[{"top":0,"bottom":50,"left":0,"right":1080,"algorithm":"ignore"}]'
+
+# Snapshot 2 — element region masks the calculator display, whose value
+# changes between runs. With this region applied, a re-run with different
+# operands (e.g., 9+9= vs 5+3=) should still produce an Unchanged snapshot
+# against an approved baseline — proving the region resolved correctly.
+- tapOn: "5"
+- tapOn: "+"
+- tapOn: "3"
+- tapOn: "="
+- runFlow:
+    file: percy/flows/percy-screenshot.yaml
+    env:
+      SCREENSHOT_NAME: "Regions_element"
+      PERCY_REGIONS: '[{"element":{"resource-id":"com.sample.browserstack.samplecalculator:id/editText"},"algorithm":"ignore"}]'
