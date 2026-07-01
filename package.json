@@ -8,7 +8,8 @@
     "validate": "node scripts/validate-flows.js"
   },
   "devDependencies": {
-    "@percy/cli": ">=1.32.0-beta.2"
+    "@percy/cli": "1.32.3-beta.3",
+    "@percy/maestro-app": "1.1.0-beta.1"
   },
   "engines": {
     "node": ">=14"
